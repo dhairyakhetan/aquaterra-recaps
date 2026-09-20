@@ -72,15 +72,21 @@ export default function MiniGames({ edition, index, label, accentKey, variant, g
         })}
       </div>
 
-      <p key={current.id} className="fade-in mt-4 text-center">
+      {/* The key replays the fade when you switch games. It has to be
+          DISTINCT from the panel's below: these two are siblings, and two
+          siblings carrying the same key is unsupported — React kept the old
+          paragraph and appended the new one, so the blurbs piled up one per
+          switch instead of replacing. */}
+      <p key={`blurb-${current.id}`} className="fade-in mt-4 text-center">
         <Meta className="text-cream-soft/45">{current.blurb}</Meta>
       </p>
 
       {/* Keyed on the game id, so switching resets rather than carrying a
           half-finished round across — and so the panel rises in rather than
-          cutting to the next game. */}
+          cutting to the next game. Prefixed for the same reason as the blurb
+          above: sibling keys must be unique. */}
       <div
-        key={current.id}
+        key={`panel-${current.id}`}
         className="rise-in mx-auto mt-7 max-w-3xl rounded-[2rem] border border-cream-soft/15 bg-cream-soft/[0.04] px-5 py-7 sm:px-8 sm:py-9"
       >
         {current.id === "bigger" && <Bigger key="bigger" pool={games.bigger} />}

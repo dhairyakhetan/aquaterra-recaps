@@ -560,6 +560,14 @@ transitions use.
   something you triggered yourself, half a second reads as lag. Replay either by
   giving the element a React `key` that changes with the content — that is how
   the game panel, the game reveals, the story filter and the year switch move.
+  - **Two siblings replaying on the same value need two different keys.** The
+    mini games' blurb and its game panel both sat on `key={current.id}`, which
+    is two children of one parent carrying the same key: unsupported, and what
+    React actually did was keep the old paragraph and append the new one, so the
+    blurbs piled up one per switch and never replaced. Prefix them
+    (`blurb-`/`panel-`). It is silent in production — the warning only appears
+    in a dev build — so when an animation replay is keyed on a value some
+    sibling is already keyed on, check the dev console.
 - **`backwards`, not `both`**, on every one of these. A finished `both`
   animation that touched `transform` leaves an identity matrix behind, and any
   transform makes that element the containing block for a `position: fixed`
