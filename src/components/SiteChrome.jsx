@@ -127,7 +127,11 @@ export function TopBar() {
 
   return (
     <div className="sticky top-0 z-40 px-3 pt-3 sm:px-5 sm:pt-4">
-      <div className="mx-auto max-w-3xl">
+      {/* `relative` so the panel below can hang off the bar rather than sit in
+          flow under it. In flow it grew this sticky block, which pushed the
+          whole page down the moment you opened the index and pulled it back up
+          when you closed it. */}
+      <div className="relative mx-auto max-w-3xl">
         <div className="flex items-center justify-between gap-3 rounded-full border border-line/70 bg-cream-soft/95 py-2 pl-3 pr-2 shadow-(--shadow-card) backdrop-blur-md sm:pl-4">
           <Link
             to="/"
@@ -166,7 +170,9 @@ export function TopBar() {
             // .rise-in, not .reveal: .reveal is the 0.55s entrance a section gets
             // once, on scroll. A menu you opened yourself should be there by the
             // time you have finished clicking.
-            className="rise-in mt-2 rounded-[1.75rem] border border-line/70 bg-cream-soft p-3 shadow-(--shadow-card-hover) sm:p-4"
+            // Out of flow, hanging off the bottom of the bar: opening the index
+            // must not move the page underneath it.
+            className="rise-in absolute inset-x-0 top-full mt-2 rounded-[1.75rem] border border-line/70 bg-cream-soft p-3 shadow-(--shadow-card-hover) sm:p-4"
           >
             <Meta className="block px-2 pb-2 pt-1 text-ink-3">In this issue</Meta>
             <div className="grid grid-cols-2 gap-2">
