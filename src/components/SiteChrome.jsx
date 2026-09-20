@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { X, Menu } from "lucide-react";
 import { Meta } from "./Lockup";
 import Mascot from "./Mascot";
-import { sectionAccent } from "../lib/utils";
+import { cx, sectionAccent } from "../lib/utils";
 import { getEdition } from "../data/editions";
 import { issueSections } from "../lib/issueSections";
 
@@ -42,19 +42,60 @@ function useIssueSections() {
   return edition ? issueSections(edition) : [];
 }
 
+// One entry in the index, wearing the colour that section already owns — the
+// same `-soft` ground the archive's format grid uses, so the menu reads as the
+// issue's own table of contents rather than nine rows of the same grey. No new
+// colours: every one of these is already on the page below it (§4).
+//
+// The arrow only appears on hover or keyboard focus. Nine of them parked in a
+// column is a row of identical marks pointing at nothing in particular; it
+// means "this one, now", so it turns up when you are on one. Hover-only must
+// not mean focus-invisible, hence the `group-focus-visible` twin on both the
+// arrow and the mark.
 function MenuItem({ section, onNavigate }) {
   const a = sectionAccent(section.accent);
   return (
     <a
       href={`#${section.id}`}
       onClick={onNavigate}
-      className="flex items-center justify-between gap-2 rounded-full px-3.5 py-2.5 text-ink transition-colors hover:bg-paper sm:px-4"
+      className={cx(
+        "group relative flex items-center gap-3 overflow-hidden rounded-2xl py-3 pl-5 pr-3.5 text-ink",
+        // Tailwind v4 emits `-translate-y-*` as the `translate` property, not as
+        // `transform`, and the base rule on `a` (§4 Motion) lists `transform`.
+        // So the lift names its own property or it snaps; the curve and duration
+        // still come from the theme.
+        "transition-[translate,box-shadow] hover:-translate-y-0.5 hover:shadow-(--shadow-card)",
+        a.soft
+      )}
     >
-      <span className="flex min-w-0 items-baseline gap-2.5">
-        <Meta className={a.text}>{String(section.index).padStart(2, "0")}</Meta>
-        <span className="truncate text-[0.9rem] font-semibold">{section.label}</span>
+      {/* The section's solid colour as a mark down the edge, short at rest and
+          drawn to full height when you are on it. A span is not in the base
+          transition rule, so it names its own — and it names `scale`, because in
+          Tailwind v4 `scale-y-*` is the `scale` property and `transition-transform`
+          does not reach it. */}
+      <span
+        aria-hidden="true"
+        className={cx(
+          "absolute inset-y-0 left-0 w-[3px] origin-center scale-y-[0.32] rounded-full transition-[scale]",
+          "group-hover:scale-y-100 group-focus-visible:scale-y-100",
+          a.rule
+        )}
+      />
+      <Meta className={cx("shrink-0 tabular-nums", a.text)}>
+        {String(section.index).padStart(2, "0")}
+      </Meta>
+      <span className="min-w-0 flex-1 truncate text-[0.9rem] font-semibold">{section.label}</span>
+      <span
+        aria-hidden="true"
+        className={cx(
+          "shrink-0 -translate-x-1 opacity-0 transition",
+          "group-hover:translate-x-0 group-hover:opacity-100",
+          "group-focus-visible:translate-x-0 group-focus-visible:opacity-100",
+          a.text
+        )}
+      >
+        →
       </span>
-      <span aria-hidden="true" className="shrink-0 text-ink-3">→</span>
     </a>
   );
 }
@@ -117,7 +158,7 @@ export function TopBar() {
             className="rise-in mt-2 rounded-[1.75rem] border border-line/70 bg-cream-soft p-3 shadow-(--shadow-card-hover) sm:p-4"
           >
             <Meta className="block px-2 pb-2 pt-1 text-ink-3">In this issue</Meta>
-            <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {sections.map((section) => (
                 <MenuItem key={section.id} section={section} onNavigate={() => setOpen(false)} />
               ))}
