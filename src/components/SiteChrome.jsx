@@ -44,14 +44,18 @@ function useIssueSections() {
 
 // One entry in the index, wearing the colour that section already owns — the
 // same `-soft` ground the archive's format grid uses, so the menu reads as the
-// issue's own table of contents rather than nine rows of the same grey. No new
+// issue's own table of contents rather than eight rows of the same grey. No new
 // colours: every one of these is already on the page below it (§4).
 //
-// The arrow only appears on hover or keyboard focus. Nine of them parked in a
-// column is a row of identical marks pointing at nothing in particular; it
-// means "this one, now", so it turns up when you are on one. Hover-only must
-// not mean focus-invisible, hence the `group-focus-visible` twin on both the
-// arrow and the mark.
+// It is a tile, not a row, and it is a tile at every width — the grid stays two
+// across on a phone. That is what the stacked shape is for: the numeral and the
+// arrow share the top line, which is mostly air anyway, so the label gets the
+// tile's full width instead of wrapping around them at 167px.
+//
+// The arrow only appears on hover or keyboard focus. Eight of them parked on
+// the page read as decoration; it means "this one, now", so it turns up when
+// you are on one. Hover-only must not mean focus-invisible, hence the
+// `group-focus-visible` twin on both the arrow and the mark.
 function MenuItem({ section, onNavigate }) {
   const a = sectionAccent(section.accent);
   return (
@@ -59,7 +63,8 @@ function MenuItem({ section, onNavigate }) {
       href={`#${section.id}`}
       onClick={onNavigate}
       className={cx(
-        "group relative flex items-center gap-3 overflow-hidden rounded-2xl py-3 pl-5 pr-3.5 text-ink",
+        "group relative flex min-h-[4.75rem] flex-col justify-between gap-2 overflow-hidden",
+        "rounded-2xl py-2.5 pl-4 pr-3 text-ink",
         // Tailwind v4 emits `-translate-y-*` as the `translate` property, not as
         // `transform`, and the base rule on `a` (§4 Motion) lists `transform`.
         // So the lift names its own property or it snaps; the curve and duration
@@ -81,20 +86,26 @@ function MenuItem({ section, onNavigate }) {
           a.rule
         )}
       />
-      <Meta className={cx("shrink-0 tabular-nums", a.text)}>
-        {String(section.index).padStart(2, "0")}
-      </Meta>
-      <span className="min-w-0 flex-1 truncate text-[0.9rem] font-semibold">{section.label}</span>
-      <span
-        aria-hidden="true"
-        className={cx(
-          "shrink-0 -translate-x-1 opacity-0 transition",
-          "group-hover:translate-x-0 group-hover:opacity-100",
-          "group-focus-visible:translate-x-0 group-focus-visible:opacity-100",
-          a.text
-        )}
-      >
-        →
+
+      <span className="flex items-center justify-between gap-2">
+        <Meta className={cx("tabular-nums", a.text)}>
+          {String(section.index).padStart(2, "0")}
+        </Meta>
+        <span
+          aria-hidden="true"
+          className={cx(
+            "-translate-x-1 opacity-0 transition",
+            "group-hover:translate-x-0 group-hover:opacity-100",
+            "group-focus-visible:translate-x-0 group-focus-visible:opacity-100",
+            a.text
+          )}
+        >
+          →
+        </span>
+      </span>
+
+      <span className="text-pretty text-[0.875rem] font-semibold leading-tight">
+        {section.label}
       </span>
     </a>
   );
@@ -158,7 +169,7 @@ export function TopBar() {
             className="rise-in mt-2 rounded-[1.75rem] border border-line/70 bg-cream-soft p-3 shadow-(--shadow-card-hover) sm:p-4"
           >
             <Meta className="block px-2 pb-2 pt-1 text-ink-3">In this issue</Meta>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <div className="grid grid-cols-2 gap-2">
               {sections.map((section) => (
                 <MenuItem key={section.id} section={section} onNavigate={() => setOpen(false)} />
               ))}
